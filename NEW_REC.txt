@@ -45,13 +45,14 @@ export default function RecruiterDashboard({ candidatesList }) {
 
   const gradeInfo = calculateGradeMetric(activeCandidate.match_index || activeCandidate.ats_score || 0);
 
-  // ── DYNAMIC ROLE DETECTION ENGINE ──
+  // ── 🌟 DYNAMIC ROLE DETECTION ENGINE ──
+  // Reads target vectors from backend payload, defaulting back to target track signatures cleanly
   const rawTargetRole = activeCandidate.target_role || activeCandidate.ats_details?.target_role || "Frontend Developer Intern";
   const isMLOrDataTrack = rawTargetRole.toLowerCase().includes("ml") || 
                           rawTargetRole.toLowerCase().includes("machine") || 
                           rawTargetRole.toLowerCase().includes("data");
 
-  // ── ROLE-BASED CONDITIONAL ROADMAP FACTORY ──
+  // ── 🌟 ROLE-BASED CONDITIONAL ROADMAP FACTORY ──
   const dynamicRoadmapPhases = isMLOrDataTrack ? [
     {
       phase: "Phase 1: Pure Algorithm Design",
@@ -140,7 +141,7 @@ export default function RecruiterDashboard({ candidatesList }) {
         </div>
       </div>
 
-      {/* ── SECTION 2: TOP INTEGRATED SUMMARY, STRENGTHS & DEFICITS (UNIFIED SECTIONS) ── */}
+      {/* ── SECTION 2: TOP INTEGRATED SUMMARY, STRENGTHS & DEFICITS ─────────── */}
       <div className="w-full grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-3 bg-[#111622]/40 border border-[#1E2638] rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xl shadow-black/10 backdrop-blur-md relative min-h-[290px]">
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block w-full text-left pl-0.5 mb-2">
@@ -175,32 +176,26 @@ export default function RecruiterDashboard({ candidatesList }) {
         </div>
 
         <div className="xl:col-span-9 bg-[#111622]/40 border border-[#1E2638] rounded-2xl p-5 shadow-xl shadow-black/10 backdrop-blur-md grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Column 1: Summary Analysis */}
-          <div className="space-y-2 md:border-r md:border-[#1E2638]/60 md:pr-4 flex flex-col justify-between h-full">
-            <div className="space-y-2 flex-grow">
-              <span className="text-xs font-bold text-slate-200 uppercase tracking-wider block mb-3">Summary Analysis</span>
-              {/* 🌟 UNIFIED DESIGN: Transformed inner box wrapper matching the structure of Section 3 items */}
-              <div className="max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 bg-[#0B0F17]/40 border border-[#1E2638]/50 p-3 rounded-xl shadow-inner">
-                <p className="text-xs text-slate-400 leading-relaxed font-normal">
-                  {activeCandidate.ats_details?.summary || activeCandidate.summary}
-                </p>
-              </div>
+          <div className="space-y-2 md:border-r md:border-[#1E2638]/60 md:pr-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-200 uppercase tracking-wider block">Summary Analysis</span>
+              <p className="text-xs text-slate-400 leading-relaxed font-normal">
+                {activeCandidate.ats_details?.summary || activeCandidate.summary}
+              </p>
             </div>
-            <div className="text-[9px] font-mono text-slate-600 truncate pt-2 mt-2 border-t border-[#1E2638]/10 shrink-0">
+            <div className="text-[9px] font-mono text-slate-600 truncate pt-2">
               COMPARE: {activeCandidate.filename}
             </div>
           </div>
 
-          {/* Column 2: Matching Skills */}
-          <div className="space-y-2 md:border-r md:border-[#1E2638]/60 md:pr-4 flex flex-col h-full">
-            <div className="flex items-center space-x-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 shrink-0">
+          <div className="space-y-2 md:border-r md:border-[#1E2638]/60 md:pr-4">
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span>Matching Skills</span>
             </div>
-            {/* 🌟 UNIFIED DESIGN: Scaled outer box layout wrapper targeting consistent borders */}
-            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 bg-[#0B0F17]/40 border border-[#1E2638]/50 p-2.5 rounded-xl flex-grow shadow-inner">
+            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
               {(activeCandidate.ats_details?.strengths || activeCandidate.strengths || []).map((item, idx) => (
-                <div key={idx} className="flex items-start space-x-2 bg-slate-950/30 p-2 border border-[#1E2638]/20 rounded-lg">
+                <div key={idx} className="flex items-start space-x-2 bg-slate-950/20 p-2.5 border border-[#1E2638]/30 rounded-xl">
                   <span className="text-emerald-400 text-xs mt-0.5 shrink-0">•</span>
                   {renderFormattedBullet(item, "text-emerald-400")}
                 </div>
@@ -208,16 +203,14 @@ export default function RecruiterDashboard({ candidatesList }) {
             </div>
           </div>
 
-          {/* Column 3: Experience Gaps & Risks */}
-          <div className="space-y-2 flex flex-col h-full">
-            <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 shrink-0">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-500 uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
               <span>Experience Gaps & Risks</span>
             </div>
-            {/* 🌟 UNIFIED DESIGN: Scaled outer box layout wrapper targeting consistent borders */}
-            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 bg-[#0B0F17]/40 border border-[#1E2638]/50 p-2.5 rounded-xl flex-grow shadow-inner">
+            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
               {(activeCandidate.ats_details?.weaknesses || activeCandidate.weaknesses || []).map((item, idx) => (
-                <div key={idx} className="flex items-start space-x-2 bg-slate-950/30 p-2 border border-[#1E2638]/20 rounded-lg">
+                <div key={idx} className="flex items-start space-x-2 bg-slate-950/20 p-2.5 border border-[#1E2638]/30 rounded-xl">
                   <span className="text-amber-500 text-xs mt-0.5 shrink-0">•</span>
                   {renderFormattedBullet(item, "text-amber-500")}
                 </div>
@@ -227,7 +220,7 @@ export default function RecruiterDashboard({ candidatesList }) {
         </div>
       </div>
 
-      {/* ── SECTION 3: RESUME VS JD DEEP MATCH ANALYTICS MATRIX (KEEP UNCHANGED) ── */}
+      {/* ── SECTION 3: RESUME VS JD DEEP MATCH ANALYTICS MATRIX ── */}
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="p-5 bg-[#111622]/40 border border-[#1E2638] rounded-2xl shadow-xl shadow-black/15 backdrop-blur-md space-y-3.5">
           <div className="flex items-center space-x-2 border-b border-[#1E2638]/60 pb-2">
@@ -269,106 +262,36 @@ export default function RecruiterDashboard({ candidatesList }) {
           </div>
         </div>
 
-        {/* Critical Skill Gaps Panel */}
-        <div className="p-5 bg-[#111622]/40 border border-[#1E2638] rounded-2xl shadow-xl shadow-black/15 backdrop-blur-md flex flex-col justify-between">
-          <div>
-            <div className="flex items-center space-x-2 border-b border-[#1E2638]/60 pb-2 mb-3">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
-              <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Critical Skill Gaps</h4>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-normal">Core engineering tooling or platform architectures expected by the organizational requirements but missing from the resume text layers:</p>
+        <div className="p-5 bg-[#111622]/40 border border-[#1E2638] rounded-2xl shadow-xl shadow-black/15 backdrop-blur-md space-y-3.5">
+          <div className="flex items-center space-x-2 border-b border-[#1E2638]/60 pb-2">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Critical Skill Gaps</h4>
           </div>
-
-          <div className="space-y-2 mt-2 w-full">
-            {isMLOrDataTrack ? (
-              <>
-                <div className="p-2.5 bg-[#0B0F17]/40 border border-rose-500/15 rounded-xl flex flex-col space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                      <span className="font-bold text-slate-200 uppercase tracking-wide text-[10px]">Custom Algorithm Implementation</span>
-                    </div>
-                    <span className="text-[8px] font-mono bg-rose-500/10 border border-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Missing Domain</span>
-                  </div>
-                  <p className="text-slate-400 leading-relaxed text-[11px]">The profile relies heavily on generic black-box libraries. High-intellect screening requires explicit evidence of manual algorithmic setup.</p>
-                  <p className="text-[10px] font-mono font-medium text-amber-400 bg-amber-500/5 px-1.5 py-0.5 border border-amber-500/10 rounded w-fit">Action: Manually write a Naive Bayes classifier from scratch</p>
-                </div>
-
-                <div className="p-2.5 bg-[#0B0F17]/40 border border-rose-500/15 rounded-xl flex flex-col space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                      <span className="font-bold text-slate-200 uppercase tracking-wide text-[10px]">Data Pipeline Engineering</span>
-                    </div>
-                    <span className="text-[8px] font-mono bg-rose-500/10 border border-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Missing Domain</span>
-                  </div>
-                  <p className="text-slate-400 leading-relaxed text-[11px]">Missing distinct evidence regarding the setup of vector database index points, custom tokenizers, or manual structural sanitization matrices.</p>
-                  <p className="text-[10px] font-mono font-medium text-amber-400 bg-amber-500/5 px-1.5 py-0.5 border border-amber-500/10 rounded w-fit">Action: Build custom vector data-loading structures in Python</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="p-2.5 bg-[#0B0F17]/40 border border-rose-500/15 rounded-xl flex flex-col space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                      <span className="font-bold text-slate-200 uppercase tracking-wide text-[10px]">Machine Learning & LLM Integration</span>
-                    </div>
-                    <span className="text-[8px] font-mono bg-rose-500/10 border border-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Missing Domain</span>
-                  </div>
-                  <p className="text-slate-400 leading-relaxed text-[11px]">No apparent project context linking front-end rendering layouts directly to dedicated LLM inference endpoints or deep open-weights hardware clusters.</p>
-                  <p className="text-[10px] font-mono font-medium text-emerald-400 bg-emerald-500/5 px-1.5 py-0.5 border border-emerald-500/10 rounded w-fit">Action: Build an analytics pane integrating Groq Llama completion endpoints</p>
-                </div>
-
-                <div className="p-2.5 bg-[#0B0F17]/40 border border-rose-500/15 rounded-xl flex flex-col space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                      <span className="font-bold text-slate-200 uppercase tracking-wide text-[10px]">Production Cloud Operations</span>
-                    </div>
-                    <span className="text-[8px] font-mono bg-rose-500/10 border border-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0">Missing Domain</span>
-                  </div>
-                  <p className="text-slate-400 leading-relaxed text-[11px]">The profile lacks explicit experience deploying multi-container systems, configuring hosting networks, or orchestrating persistent token repositories.</p>
-                  <p className="text-[10px] font-mono font-medium text-emerald-400 bg-emerald-500/5 px-1.5 py-0.5 border border-emerald-500/10 rounded w-fit">Action: Containerize applications using Docker files and test build pipelines</p>
-                </div>
-              </>
-            )}
+          <p className="text-[11px] text-slate-500">Core engineering tooling or platform architectures expected by the JD but lacking explicit evidence:</p>
+          <div className="space-y-2 max-h-[140px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+            {(activeCandidate.critical_skill_gaps || (isMLOrDataTrack ? ["No isolated NumPy calculations found", "Manual mathematical modeling missing", "Asynchronous inference layer optimization gaps"] : ["No project sections verified", "Missing cloud pipeline deployments", "Global State Management Architecture Gaps"])).map((gap, idx) => (
+              <div key={idx} className="flex items-center justify-between bg-[#0B0F17]/40 p-2.5 border border-[#1E2638]/40 rounded-xl text-xs text-slate-300 font-medium">
+                <span>⚡ {gap}</span>
+                <span className="text-[9px] bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded text-rose-400 uppercase font-bold tracking-wider">CRITICAL GAPS</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Resume Health Check */}
-        <div className="p-5 bg-[#111622]/40 border border-[#1E2638] rounded-2xl shadow-xl shadow-black/15 backdrop-blur-md flex flex-col justify-between">
-          <div>
-            <div className="flex items-center space-x-2 border-b border-[#1E2638]/60 pb-2 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Resume Health Check</h4>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-normal">Fix these structural layout blocks to make your experience and project achievements explicit to hiring pipelines:</p>
+        <div className="p-5 bg-[#111622]/40 border border-[#1E2638] rounded-2xl shadow-xl shadow-black/15 backdrop-blur-md space-y-3.5">
+          <div className="flex items-center space-x-2 border-b border-[#1E2638]/60 pb-2">
+            <UserCheck className="w-4 h-4 text-rose-400" />
+            <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Recruiter Risk & ATS Parsing Threats</h4>
           </div>
-          
-          <div className="space-y-2 mt-2 w-full">
-            <div className="p-2.5 bg-[#0B0F17]/40 border border-red-500/20 rounded-xl flex items-start justify-between gap-3 text-xs">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-[8px] font-mono font-bold bg-red-500/10 border border-red-500/20 text-red-400 px-1 py-0.5 rounded uppercase">Critical Fix</span>
-                  <span className="font-bold text-slate-200 uppercase tracking-wide text-[10px]">Date Discrepancy Found</span>
-                </div>
-                <p className="text-slate-400 leading-relaxed text-[11px]">Your workspace history tracks future dates or overlapping anomalies.</p>
-                <p className="text-[10px] font-mono font-medium text-amber-400 bg-amber-500/5 px-1.5 py-0.5 border border-amber-500/10 rounded w-fit">Action: Double-check start/end years</p>
-              </div>
-              <span className="text-[8px] font-mono bg-red-950/40 border border-red-500/30 text-red-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shrink-0">Hiding Profile</span>
+          <p className="text-[11px] text-slate-500">Automated structural compliance issues that could trigger immediate parsing filtering drops:</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between bg-[#0B0F17]/40 p-2.5 border border-[#1E2638]/40 rounded-xl text-xs text-slate-300">
+              <span>⚠️ Future-Dated Experience Timeline Inconsistencies</span>
+              <span className="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-mono font-bold border border-amber-500/20">ATS RISK LEVEL: HIGH</span>
             </div>
-
-            <div className="p-2.5 bg-[#0B0F17]/40 border border-amber-500/20 rounded-xl flex items-start justify-between gap-3 text-xs">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-[8px] font-mono font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 px-1 py-0.5 rounded uppercase">Warning</span>
-                  <span className="font-bold text-slate-200 uppercase tracking-wide text-[10px]">Missing "Projects" Header</span>
-                </div>
-                <div className="text-slate-400 leading-relaxed text-[11px]">The layout engine could not find a designated segment mapping out custom built products.</div>
-                <p className="text-[10px] font-mono font-medium text-emerald-400 bg-emerald-500/5 px-1.5 py-0.5 border border-emerald-500/10 rounded w-fit">Action: Add an explicit PROJECTS section title</p>
-              </div>
-              <span className="text-[8px] font-mono bg-amber-950/40 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shrink-0">Auto-Reject Risk</span>
+            <div className="flex items-center justify-between bg-[#0B0F17]/40 p-2.5 border border-[#1E2638]/40 rounded-xl text-xs text-slate-300">
+              <span>⚠️ Missing Standardized Section Labels (Projects Matrix Missing)</span>
+              <span className="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-mono font-bold border border-amber-500/20">RECRUITER REJECTION: HIGH</span>
             </div>
           </div>
         </div>
@@ -396,35 +319,9 @@ export default function RecruiterDashboard({ candidatesList }) {
       </div>
 
       {/* ── SECTION 5: TECHNICAL TAXONOMY ACCORDION ROWS ── */}
-      <div className="w-full bg-[#111622]/20 border border-[#1E2638] rounded-2xl p-5 shadow-xl shadow-black/10 backdrop-blur-md space-y-3">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block pl-1 mb-1">Technical Taxonomy</span>
-        
-        {(() => {
-          const rawSkills = activeCandidate.skills_details || activeCandidate.ats_details?.skills_details || {};
-          
-          const standardizedSkills = {
-            programming_languages: rawSkills.programming_languages || rawSkills.programming_languages_list || rawSkills.languages || [],
-            frameworks_libraries: rawSkills.frameworks_libraries || rawSkills.frameworks_and_libraries || rawSkills.frameworks || rawSkills.libraries || [],
-            databases: rawSkills.databases || rawSkills.database || [],
-            cloud_devops: rawSkills.cloud_devops || rawSkills.cloud_and_devops || rawSkills.devops || rawSkills.cloud || [],
-            tools_platforms: rawSkills.tools_platforms || rawSkills.tools_and_platforms || rawSkills.tools || rawSkills.platforms || [],
-            ai_machine_learning: rawSkills.ai_machine_learning || rawSkills.ai_and_machine_learning || rawSkills.machine_learning || rawSkills.ml || rawSkills.ai || [],
-            domains_core_concepts: rawSkills.domains_core_concepts || rawSkills.domains_and_core_concepts || rawSkills.concepts || rawSkills.domains || [],
-            apis_protocols: rawSkills.apis_protocols || rawSkills.apis_and_protocols || rawSkills.apis || rawSkills.protocols || []
-          };
-
-          const hasParsedData = Object.values(standardizedSkills).some(arr => Array.isArray(arr) && arr.length > 0);
-
-          if (!hasParsedData) {
-            return (
-              <div className="bg-[#0B0F17]/40 border border-[#1E2638]/50 p-4 rounded-xl text-center shadow-inner">
-                <p className="text-xs text-slate-500 font-mono">No technical skill profiles parsed.</p>
-              </div>
-            );
-          }
-
-          return <SkillsMatrix profile={standardizedSkills} />;
-        })()}
+      <div className="w-full bg-[#111622]/20 border border-[#1E2638] rounded-2xl p-5 shadow-xl shadow-black/10 backdrop-blur-md space-y-2">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block pl-1">Technical Taxonomy</span>
+        <SkillsMatrix profile={activeCandidate.skills_details} />
       </div>
 
       {/* ── SECTION 6: STRATEGIC UPSKILLING & ROADMAP ADVISORY ── */}
@@ -511,10 +408,13 @@ export default function RecruiterDashboard({ candidatesList }) {
 
       {/* ── SECTION 7: DYNAMIC AI CAREER ROADMAP PROGRESSION PANEL ── */}
       <div className="w-full bg-[#111622]/40 border border-[#1E2638] rounded-2xl p-6 shadow-xl shadow-black/10 backdrop-blur-md space-y-5">
+        
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#1E2638]/60 pb-3.5 gap-3">
           <div className="flex items-center space-x-2">
             <Milestone className="w-4 h-4 text-emerald-400" />
-            <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Long-Term AI Career Roadmap</h4>
+            <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+              Long-Term AI Career Roadmap
+            </h4>
           </div>
           <div className="flex items-center space-x-2 bg-amber-500/5 border border-amber-500/20 px-3 py-1.5 rounded-xl self-start sm:self-auto">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Target Horizon:</span>
@@ -524,6 +424,7 @@ export default function RecruiterDashboard({ candidatesList }) {
           </div>
         </div>
 
+        {/* Dynamic Progression Grid Pipeline */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
           {dynamicRoadmapPhases.map((phase, idx) => (
             <div 
@@ -545,6 +446,7 @@ export default function RecruiterDashboard({ candidatesList }) {
                 </p>
               </div>
 
+              {/* Status Marker */}
               <div className="pt-4 flex items-center justify-between border-t border-[#1E2638]/30 mt-3">
                 <div className="flex items-center space-x-1.5 text-[10px] font-bold tracking-wider text-slate-500 group-hover:text-emerald-400/80 transition-colors">
                   <CheckSquare className="w-3.5 h-3.5" />
@@ -557,6 +459,7 @@ export default function RecruiterDashboard({ candidatesList }) {
             </div>
           ))}
         </div>
+
       </div>
 
     </div>
