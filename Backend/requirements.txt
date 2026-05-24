@@ -1,0 +1,15 @@
+langchain==0.3.25
+langchain-google-genai==2.1.4
+google-ai-generativelanguage==0.6.18
+pydantic==2.11.5
+python-dotenv
+pymupdf
+python-docx
+streamlit==1.45.1
+langchain-core==0.3.59
+numpy
+plotly
+fastapi
+uvicorn
+python-multipart
+torch

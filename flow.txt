@@ -1,0 +1,46 @@
+ai-ats-intelligence-platform/
+│
+├── backend/                        # 🐍 Python FastAPI Core
+│   ├── main.py                     # API Routing Gateway
+│   ├── requirements.txt            # Operational Package Manifest
+│   ├── .env                        # Secured Secret Tokens (API Keys)
+│   ├── .gitignore                  # Prevents cache & environmental leaks
+│   │
+│   ├── api/                        # Route Handlers
+│   │   └── endpoints.py
+│   │
+│   ├── core/                       # Shared System Settings
+│   │   └── config.py
+│   │
+│   ├── chains/                     # 🤖 Generative AI Layer (LangChain)
+│   │   ├── ats_chain.py            # Structured 6-Tier Matrix Extraction
+│   │   └── skill_chain.py          # Structured 8-Part Categorization Matrix
+│   │
+│   ├── models/                     # 📉 Classic Machine Learning Layer (From Scratch)
+│   │   ├── tfidf_vectorizer.py     # Custom Frequency Weight Engine
+│   │   └── similarity_matrix.py    # Custom Pure-Math Cosine Comparator
+│   │
+│   ├── deep_learning/              # 🧠 Deep Learning Layer (PyTorch/TensorFlow)
+│   │   ├── weights/                # Stored Model Checkpoints (.pth / .h5)
+│   │   ├── bi_lstm_ner.py          # Custom Named Entity Recognition Architecture
+│   │   └── tokenizer.py            # Text-to-Tensor Serialization Pipeline
+│   │
+│   └── services/                   # Core Utility Pipelines
+│       ├── pdf_parser.py           # In-Memory Byte Stream File Extractor
+│       └── text_cleaner.py         # Regex Token Sanitizer
+│
+└── frontend/                       # ⚛️ React UI (Vite + Tailwind CSS)
+    ├── package.json
+    ├── index.html
+    └── src/
+        ├── App.jsx                 # Application View Controller
+        ├── components/             # High-Impact Presentation Layer
+        │   ├── FileUpload.jsx      # Drag-and-Drop Ingestion Target
+        │   ├── Dashboard.jsx       # Tab Navigation Framework
+        │   ├── RadarChart.jsx      # Interactive Recharts Metric Grid
+        │   ├── SkillsMatrix.jsx    # Dual-Column Expander Node Tree
+        │   └── FocusPlan.jsx       # Priority Action Alignment Checklist
+        └── utils/
+            └── api.js              # Fetch Stream Interface to Backend Port 8000
+
+
