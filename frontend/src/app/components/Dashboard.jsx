@@ -1,174 +1,235 @@
 "use client";
 
 import React, { useState } from "react";
-import dynamic from "next/dynamic";
 import SkillsMatrix from "./SkillsMatrix";
-import FocusPlan from "./FocusPlan";
-import { LayoutDashboard, ShieldCheck, AlertTriangle, Layers, Lightbulb, FileText, Cpu } from "lucide-react";
+import PercentileChart from "./PercentileChart"; 
+import { Users, FileText, Star, ShieldCheck, AlertTriangle } from "lucide-react";
 
-// 🌟 Dynamically import RadarChart with SSR disabled to bypass client-side rendering mismatches
-const RadarChartWidget = dynamic(() => import("./RadarChart"), { ssr: false });
+export default function RecruiterDashboard({ candidatesList }) {
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const activeCandidate = candidatesList[selectedIdx] || null;
 
-export default function Dashboard({ data }) {
-  const [activeTab, setActiveTab] = useState("ats");
+  if (!activeCandidate) return <p className="text-sm text-slate-500">No applicants parsed.</p>;
 
-  // Destructure structured parameters out of the unified server data contract
-  const { semantic_score, ats, skills } = data;
+  const formatCategoryLabel = (str) => {
+    return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  // Clean text-parsing engine to split and emphasize bold sub-headings inside bullet arrays
+  const renderFormattedBullet = (bulletText, highlightClass = "text-emerald-400") => {
+    let cleanText = bulletText.replace(/^[\s·•\-*]+/, "").trim();
+    let heading = "";
+    let body = cleanText;
+
+    if (cleanText.includes("**")) {
+      const parts = cleanText.split("**");
+      if (parts.length >= 3) {
+        heading = parts[1];
+        body = parts.slice(2).join("**").trim();
+      }
+    } else if (cleanText.includes(":")) {
+      const firstColonIdx = cleanText.indexOf(":");
+      heading = cleanText.substring(0, firstColonIdx);
+      body = cleanText.substring(firstColonIdx + 1).trim();
+    }
+
+    if (heading) {
+      heading = heading.replace(/:$/, "").trim();
+      return (
+        <span className="text-xs text-slate-300 leading-relaxed">
+          <strong className={`font-bold uppercase tracking-wide text-[11px] ${highlightClass}`}>{heading}:</strong> {body}
+        </span>
+      );
+    }
+
+    return <span className="text-xs text-slate-300 leading-relaxed">{cleanText}</span>;
+  };
+
+  const calculateGradeMetric = (score) => {
+    if (score >= 90) return { label: "Grade: A+", style: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
+    if (score >= 80) return { label: "Grade: A-", style: "bg-green-500/10 text-green-400 border-green-500/20" };
+    if (score >= 70) return { label: "Grade: B-", style: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
+    if (score >= 60) return { label: "Grade: C+", style: "bg-amber-500/10 text-amber-400 border-amber-500/20" };
+    return { label: "Grade: D", style: "bg-rose-500/10 text-rose-400 border-rose-500/20" };
+  };
+
+  const gradeInfo = calculateGradeMetric(activeCandidate.match_index);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="w-full max-w-full space-y-6 animate-in fade-in duration-300 box-border text-slate-200">
       
-      {/* 1. Hero Metrics Ribbon Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 bg-slate-950/40 border border-slate-800 rounded-2xl flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase text-slate-500 tracking-wider">Structural & Layout Metric</p>
-            <h3 className="text-3xl font-black text-white mt-1">
-              {/* Calculate aggregate structural score from 6 pillars (Max 30) */}
-              {int(((ats.keyword_relevance_score + ats.formatting_score + ats.experience_quality_score + 
-                     ats.skills_section_score + ats.education_score + ats.achievements_score) / 30) * 100)}%
-            </h3>
-          </div>
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl">
-            <LayoutDashboard className="w-6 h-6" />
-          </div>
+      {/* ── SECTION 1: GLOBAL APPLICANT SELECTION POOL ROW ──────────────────── */}
+      <div className="w-full space-y-2">
+        <div className="flex items-center space-x-2 pl-1">
+          <Users className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+            Active Applicant Pool Leaderboard ({candidatesList.length})
+          </span>
         </div>
-
-        <div className="p-6 bg-slate-950/40 border border-slate-800 rounded-2xl flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase text-slate-500 tracking-wider">Classic ML Vector Similarity</p>
-            <h3 className="text-3xl font-black text-rose-400 mt-1">{semantic_score} / 100</h3>
-          </div>
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl">
-            <Layers className="w-6 h-6" />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
+          {candidatesList.map((candidate, idx) => {
+            const isSelected = selectedIdx === idx;
+            return (
+              <button
+                key={candidate.candidate_id}
+                onClick={() => setSelectedIdx(idx)}
+                className={`w-full p-3.5 flex items-center justify-between rounded-xl border text-left transition-all duration-200 cursor-pointer shadow-md ${
+                  isSelected 
+                    ? "bg-[#111622]/90 border-emerald-500 text-white shadow-lg shadow-emerald-950/10" 
+                    : "bg-[#111622]/20 border-[#1E2638] text-slate-300 hover:border-slate-700 hover:bg-[#111622]/40"
+                }`}
+              >
+                <div className="flex items-center space-x-3 truncate">
+                  <div className={`w-5.5 h-5.5 rounded-md flex items-center justify-center font-mono text-[10px] font-bold border ${
+                    idx === 0 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-slate-900 border-[#1E2638] text-slate-500"
+                  }`}>
+                    {idx + 1}
+                  </div>
+                  <div className="truncate space-y-0.5">
+                    <p className="text-xs font-bold tracking-wide text-slate-200 truncate">{candidate.candidate_name}</p>
+                    <p className="text-[9px] font-mono font-medium text-slate-500 uppercase truncate">{candidate.filename}</p>
+                  </div>
+                </div>
+                <span className={`text-xs font-black tracking-tight shrink-0 pl-2 ${isSelected ? "text-emerald-400" : "text-white"}`}>
+                  {candidate.match_index}%
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* 2. Interactive Navigation Segment Controller */}
-      <div className="flex border-b border-slate-800 space-x-6 overflow-x-auto scrollbar-none">
-        <button
-          onClick={() => setActiveTab("ats")}
-          className={`pb-4 text-sm font-semibold border-b-2 tracking-wide transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === "ats" ? "border-rose-500 text-white" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          📊 ATS Analysis Dashboard
-        </button>
-        <button
-          onClick={() => setActiveTab("skills")}
-          className={`pb-4 text-sm font-semibold border-b-2 tracking-wide transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === "skills" ? "border-rose-500 text-white" : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          🛠️ Skills Matrix & Gap Plan
-        </button>
+      {/* ── SECTION 2: TOP INTEGRATED SUMMARY, STRENGTHS & DEFICITS ─────────── */}
+      <div className="w-full grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        
+        {/* Left Circular Score Indicator */}
+        <div className="xl:col-span-3 bg-[#111622]/40 border border-[#1E2638] rounded-2xl p-5 flex flex-col items-center justify-center text-center shadow-xl shadow-black/10 backdrop-blur-md relative">
+          <div className="relative w-28 h-28 flex items-center justify-center">
+            <svg className="absolute w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="41" fill="transparent" stroke="#1E2638" strokeWidth="5" />
+              <circle 
+                cx="50" 
+                cy="50" 
+                r="41" 
+                fill="transparent" 
+                stroke="#10b981" 
+                strokeWidth="5" 
+                strokeDasharray="257.6" 
+                strokeDashoffset={257.6 - (257.6 * activeCandidate.match_index) / 100} 
+                strokeLinecap="round" 
+                className="transition-all duration-700 ease-out"
+              />
+            </svg>
+            <div className="z-10 flex flex-col items-center justify-center">
+              <span className="text-3xl font-black text-white tracking-tight">{activeCandidate.match_index}</span>
+              <span className="text-[8px] font-black text-slate-500 uppercase tracking-wider">ATS Score</span>
+            </div>
+          </div>
+          <div className={`mt-3 px-2.5 py-0.5 rounded-full text-[9px] font-black border uppercase tracking-wider ${gradeInfo.style}`}>
+            {gradeInfo.label}
+          </div>
+        </div>
+
+        {/* Right Multi-column Insights Sheet */}
+        <div className="xl:col-span-9 bg-[#111622]/40 border border-[#1E2638] rounded-2xl p-5 shadow-xl shadow-black/10 backdrop-blur-md grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          {/* Executive Overview Summary */}
+          <div className="space-y-2 md:border-r md:border-[#1E2638]/60 md:pr-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-200 uppercase tracking-wider block">Summary</span>
+              <p className="text-xs text-slate-400 leading-relaxed font-normal">
+                {activeCandidate.ats_details?.summary}
+              </p>
+            </div>
+            <div className="text-[9px] font-mono text-slate-600 truncate pt-2">
+              FILE: {activeCandidate.filename}
+            </div>
+          </div>
+
+          {/* Core Strengths */}
+          <div className="space-y-2 md:border-r md:border-[#1E2638]/60 md:pr-4">
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>Core Strengths</span>
+            </div>
+            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+              {activeCandidate.ats_details?.strengths?.map((item, idx) => (
+                <div key={idx} className="flex items-start space-x-2 bg-slate-950/20 p-2 border border-[#1E2638]/30 rounded-xl">
+                  <span className="text-emerald-400 text-xs mt-0.5 shrink-0">•</span>
+                  {renderFormattedBullet(item, "text-emerald-400")}
+                </div>
+              )) || <p className="text-xs text-slate-500">No parameters identified.</p>}
+            </div>
+          </div>
+
+          {/* Detected Vulnerabilities */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-500 uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span>Detected Vulnerabilities</span>
+            </div>
+            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+              {activeCandidate.ats_details?.weaknesses?.map((item, idx) => (
+                <div key={idx} className="flex items-start space-x-2 bg-slate-950/20 p-2 border border-[#1E2638]/30 rounded-xl">
+                  <span className="text-amber-500 text-xs mt-0.5 shrink-0">•</span>
+                  {renderFormattedBullet(item, "text-amber-500")}
+                </div>
+              )) || <p className="text-xs text-emerald-400 font-medium">Zero structural flaws detected!</p>}
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* 3. Panel Render Windows */}
-      <div className="space-y-6">
-        {activeTab === "ats" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Left Radar Chart Pillar Column */}
-            <div className="lg:col-span-1 p-6 bg-slate-950/20 border border-slate-800/80 rounded-2xl h-fit">
-              <h4 className="text-sm font-bold text-slate-200 uppercase tracking-wider mb-1">Dimension Matrix</h4>
-              <p className="text-xs text-slate-500 mb-4">Performance across core evaluation frameworks.</p>
-              <RadarChartWidget scores={ats} />
-            </div>
-
-            {/* Right Structural Feedback Blocks Column */}
-            <div className="lg:col-span-2 space-y-6">
-              
-              {/* Strengths & Weaknesses Stack Split */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-5 bg-slate-950/30 border border-slate-800 rounded-xl space-y-3">
-                  <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-sm">
-                    <ShieldCheck className="w-4 h-4" /> <span>Core Candidate Strengths</span>
-                  </div>
-                  <ul className="space-y-2">
-                    {ats.strengths?.map((item, idx) => (
-                      <li key={idx} className="text-xs text-slate-300 leading-relaxed bg-slate-900/50 p-2 border border-slate-800/60 rounded-md">· {item}</li>
-                    )) || <p className="text-xs text-slate-500">No major structural strengths detected.</p>}
-                  </ul>
-                </div>
-
-                <div className="p-5 bg-slate-950/30 border border-slate-800 rounded-xl space-y-3">
-                  <div className="flex items-center space-x-2 text-rose-400 font-semibold text-sm">
-                    <AlertTriangle className="w-4 h-4" /> <span>Detected Vulnerabilities</span>
-                  </div>
-                  <ul className="space-y-2">
-                    {ats.weaknesses?.map((item, idx) => (
-                      <li key={idx} className="text-xs text-slate-300 leading-relaxed bg-slate-900/50 p-2 border border-slate-800/60 rounded-md">· {item}</li>
-                    )) || <p className="text-xs text-emerald-500">Zero major structural flaws found!</p>}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Missing Keywords Inline Badges Matrix */}
-              <div className="p-5 bg-slate-950/30 border border-slate-800 rounded-xl space-y-3">
-                <h4 className="text-sm font-bold text-slate-200">🔍 Key Concept Coverage & Missing Keywords</h4>
-                <div className="flex flex-wrap gap-2">
-                  {ats.missing_keywords?.map((keyword, idx) => (
-                    <span key={idx} className="text-xs bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2.5 py-1 rounded-md font-medium">
-                      ⚠️ {keyword}
-                    </span>
-                  )) || <span className="text-xs text-emerald-400 font-medium">🎉 Perfect coverage metrics achieved.</span>}
-                </div>
-              </div>
-
-              {/* Executive Summary Container */}
-              <div className="p-5 bg-slate-950/30 border border-slate-800 rounded-xl space-y-3">
-                <div className="flex items-center space-x-2 text-blue-400 font-semibold text-sm">
-                  <FileText className="w-4 h-4" /> <span>Executive Parsing Summary</span>
-                </div>
-                <p className="text-sm text-slate-300 leading-relaxed mb-4">{ats.summary}</p>
-
-                {/* 🧠 PYTORCH BI-LSTM DEEP LEARNING INFERRED NER TAGS CONTAINER */}
-                {ats.deep_learning_entities && ats.deep_learning_entities.length > 0 && (
-                  <div className="pt-4 border-t border-slate-800/60 space-y-2">
-                    <div className="flex items-center space-x-1.5 text-rose-400 font-bold text-xs uppercase tracking-wider">
-                      <Cpu className="w-3.5 h-3.5" />
-                      <span>Neural Network Token Inference Tags</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {ats.deep_learning_entities.map((entity, idx) => (
-                        <span 
-                          key={idx} 
-                          className="text-[10px] font-mono bg-slate-900 border border-rose-500/20 rounded px-2.5 py-1 flex items-center space-x-2"
-                        >
-                          <span className="text-slate-300 font-medium">{entity.token}</span>
-                          <span className="text-rose-500 font-bold bg-rose-500/10 px-1 rounded text-[9px]">
-                            {entity.confidence_class}
-                          </span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-            </div>
+      {/* ── SECTION 3: SIDE-BY-SIDE DOUBLE COLUMN SECTION (Scores + Chart) ── */}
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        
+        {/* Left Column: Vertical Segment Progress Bars */}
+        <div className="lg:col-span-6 bg-[#111622]/40 border border-[#1E2638] rounded-2xl p-5 shadow-xl shadow-black/10 backdrop-blur-md flex flex-col justify-between space-y-4">
+          <div className="flex items-center space-x-1.5 border-b border-[#1E2638]/60 pb-2">
+            <Star className="w-3.5 h-3.5 text-emerald-400" />
+            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Section Scores
+            </h4>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* 8-Part Skill Matrix Columns */}
-            <div className="lg:col-span-2">
-              <SkillsMatrix profile={skills} />
-            </div>
-            {/* Targeted Action Focus Plan Column */}
-            <div className="lg:col-span-1">
-              <FocusPlan plan={skills.jd_targeted_focus_plan} />
-            </div>
+          
+          <div className="space-y-3 w-full flex-grow flex flex-col justify-around">
+            {Object.entries(activeCandidate.scoring_categories || {}).map(([key, value]) => (
+              <div key={key} className="p-3 bg-[#0B0F17]/30 border border-[#1E2638]/60 rounded-xl flex items-center justify-between shadow-inner w-full gap-4">
+                <span className="font-bold text-xs text-slate-300 shrink-0 min-w-[110px]">{formatCategoryLabel(key)}</span>
+                <div className="flex items-center space-x-3 w-full justify-end">
+                  <div className="w-full max-w-[160px] h-2 bg-[#0B0F17] rounded-full overflow-hidden shadow-inner hidden sm:block">
+                    <div 
+                      className="h-full bg-emerald-500/80 rounded-full transition-all duration-500 shadow-md shadow-emerald-400/20" 
+                      style={{ width: `${value}%` }} 
+                    />
+                  </div>
+                  <span className="font-mono font-bold text-xs text-slate-400 shrink-0">{value}/100</span>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
+
+        {/* Right Column: Full-Height Percentile Distribution Chart */}
+        <div className="lg:col-span-6 flex flex-col">
+          <PercentileChart 
+            matchIndex={activeCandidate.match_index} 
+            percentileAhead={activeCandidate.percentile_ahead} 
+            name={activeCandidate.candidate_name}
+          />
+        </div>
+
+      </div>
+
+      {/* ── SECTION 4: TECHNICAL TAXONOMY ACCORDION ROWS ──────────────────────── */}
+      <div className="w-full bg-[#111622]/20 border border-[#1E2638] rounded-2xl p-5 shadow-xl shadow-black/10 backdrop-blur-md space-y-2">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block pl-1">
+          Technical Taxonomy
+        </span>
+        <SkillsMatrix profile={activeCandidate.skills_details} />
       </div>
 
     </div>
   );
-}
-
-// Inline helper script to convert floating point ratios safely
-function int(val) {
-  return Math.floor(val);
 }

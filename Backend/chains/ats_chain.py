@@ -5,52 +5,52 @@ from prompts.prompts_reader import load_ats_prompt
 # ── ATS Result Model ─────────────────────────────────────────────────────────
 
 class ATSResponse(BaseModel):
-    # The 6 exact scoring fields your UI function uses (scaled 0 to 5)
-    keyword_relevance_score: int = Field(
+    # 🌟 UPGRADE: Core Enterprise Category Metrics scaled explicitly from 0 to 100
+    ats_compatibility: int = Field(
         ..., 
-        description="Score from 0 to 5 based on keyword alignment with the target job description."
+        description="Score from 0 to 100 analyzing parsing layout compliance, section grouping, and structural ATS validation."
     )
-    formatting_score: int = Field(
+    impact_score: int = Field(
         ..., 
-        description="Score from 0 to 5 for general layout parseability and structural clarity."
+        description="Score from 0 to 100 measuring outcome-driven, quantified performance results and statistical metric proofs."
     )
-    experience_quality_score: int = Field(
+    readability: int = Field(
         ..., 
-        description="Score from 0 to 5 for progressive work history and clear descriptions."
+        description="Score from 0 to 100 evaluating typography hierarchy, whitespace scanning balance, and structural cleanly presentation."
     )
-    skills_section_score: int = Field(
+    technical_depth: int = Field(
         ..., 
-        description="Score from 0 to 5 for presence and depth of professional technical skill stacks."
+        description="Score from 0 to 100 evaluating specialized technical framework density, core tool taxonomies, and domain expertise execution."
     )
-    education_score: int = Field(
+    recruiter_appeal: int = Field(
         ..., 
-        description="Score from 0 to 5 for clear academic background, degrees, and relevant certifications."
+        description="Score from 0 to 100 measuring trajectory progression, strong narrative verbs, and strategic presentation appeal."
     )
-    achievements_score: int = Field(
+    project_quality: int = Field(
         ..., 
-        description="Score from 0 to 5 for quantified achievements, metrics, and business impact keys."
+        description="Score from 0 to 100 assessing context-action-result project framing, engineering scale, and problem-solution depth."
     )
     
     # Text-based feedback loops
     strengths: list[str] = Field(
         default_factory=list, 
-        description="Specific strengths identified in the resume formatting or alignment."
+        description="Specific strengths identified in the resume formatting, architecture, or skills alignment."
     )
     weaknesses: list[str] = Field(
         default_factory=list, 
-        description="Specific structural or content weaknesses identified in the resume."
+        description="Specific structural gaps or target content weaknesses identified in the candidate profile."
     )
     missing_keywords: list[str] = Field(
         default_factory=list, 
-        description="Crucial technology stacks or domain phrases missing relative to the target job description."
+        description="Crucial software tools, tech stacks, or domain phrases missing relative to the target job requirements."
     )
     improvements: list[str] = Field(
         default_factory=list, 
-        description="Concrete, actionable suggestion bullets to optimize the overall resume impact."
+        description="Concrete, highly actionable suggestions to elevate the overall profile quality."
     )
     summary: str = Field(
         ..., 
-        description="A concise narrative overview performance summary of the candidate profile."
+        description="A concise narrative overview performance summary of the candidate profile tailored for talent acquisition recruiters."
     )
 
 
@@ -73,7 +73,7 @@ def analyze_resume_chain(cleaned_text: str, job_description: str, llm) -> "ATSRe
     # 3. Force Gemini to conform its output matrix directly to your response class structure
     chain = prompt | llm.with_structured_output(ATSResponse)
     
-    # 4. Invoke the network stream with execution parentheses ()
+    # 4. Invoke the network stream with extraction parameters
     return chain.invoke({
         "resume_text": cleaned_text, 
         "job_description": job_description

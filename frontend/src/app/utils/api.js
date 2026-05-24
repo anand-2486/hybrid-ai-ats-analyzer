@@ -27,3 +27,28 @@ export const analyzeProfile = async (jobDescription, file) => {
     throw error;
   }
 };
+
+// Append this alongside your existing analyzeProfile call
+export async function enhanceBulletPoint(weakBullet, targetFocus) {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/api/enhance-bullet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        weak_bullet: weakBullet,
+        target_focus: targetFocus,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to optimize bullet point metrics.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Enhancer Service Error:", error);
+    throw error;
+  }
+}
