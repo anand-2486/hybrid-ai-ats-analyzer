@@ -7,9 +7,7 @@ from pydantic import BaseModel, Field
 import numpy as np
 import sqlite3
 
-
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["HF_HUB_OFFLINE"] = "1"
 
@@ -32,8 +30,9 @@ if not os.getenv("GROQ_API_KEY"):
     print("WARNING: GROQ_API_KEY missing from configuration environment.")
 
 from groq import Groq
-from google import genai
-from google.genai import types
+# Switched from native google-genai to langchain-google-genai
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 from models.tfidf_matcher import calculate_cosine_similarity
 from models.semantic_matcher import calculate_semantic_similarity
 from services.dl_service import extract_dl_entities
@@ -57,8 +56,26 @@ gemini_client = None
 
 if os.getenv("GROQ_API_KEY"):
     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+# Initialize LangChain Google Client
 if os.getenv("GOOGLE_API_KEY"):
-    gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+    gemini_client = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.2,
+        google_api_key=os.getenv("GOOGLE_API_KEY")
+    )
+
+
+# ── 🌟 STRUCTURED OUTPUT SCHEMAS ─────────────────────────────────────────────
+class SkillsDetailsSchema(BaseModel):
+    programming_languages: List[str] = Field(default_factory=list)
+    frameworks_and_libraries: List[str] = Field(default_factory=list)
+    databases: List[str] = Field(default_factory=list)
+    cloud_and_devops: List[str] = Field(default_factory=list)
+    tools_and_platforms: List[str] = Field(default_factory=list)
+    ai_and_machine_learning: List[str] = Field(default_factory=list)
+    domains_and_core_concepts: List[str] = Field(default_factory=list)
+    apis_and_protocols: List[str] = Field(default_factory=list)
 
 class ATSAnalysisPayload(BaseModel):
     summary: str = "No summary generated."
@@ -74,6 +91,7 @@ class ATSAnalysisPayload(BaseModel):
     technical_depth: int = 50
     recruiter_appeal: int = 50
     project_quality: int = 50
+    skills_details: SkillsDetailsSchema = Field(default_factory=SkillsDetailsSchema)
 
 
 @app.get("/")
@@ -202,23 +220,23 @@ async def rank_candidates_pipeline(
             raw_json_dict = None
             active_provider = "UNKNOWN"
 
+            # ── 🌟 ROUTE 1: LANGCHAIN GOOGLE GENAI TRACK ──────────────────────
             if gemini_client:
                 try:
-                    print(f"[{file.filename}] Route 1: Requesting Gemini-2.5-Flash framework...")
-                    gemini_response = gemini_client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=f"{system_prompt}\n\n{user_prompt}",
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.2
-                        ),
-                    )
-                    raw_json_dict = json.loads(gemini_response.text)
+                    print(f"[{file.filename}] Route 1: Requesting Gemini via LangChain framework...")
+                    
+                    # Force structure parsing constraints on Gemini
+                    structured_llm = gemini_client.with_structured_output(ATSAnalysisPayload)
+                    combined_prompt = f"{system_prompt}\n\n{user_prompt}"
+                    
+                    lc_response = structured_llm.invoke(combined_prompt)
+                    raw_json_dict = lc_response.model_dump()
                     active_provider = "GEMINI"
-                    print(f"[{file.filename}] Route 1 Success: Handled cleanly by Gemini.")
+                    print(f"[{file.filename}] Route 1 Success: Handled cleanly by LangChain Gemini.")
                 except Exception as gemini_err:
-                    print(f"⚠️ [{file.filename}] ROUTE 1 FAILURE: Gemini failed: {str(gemini_err)}")
+                    print(f"⚠️ [{file.filename}] ROUTE 1 FAILURE: LangChain Gemini failed: {str(gemini_err)}")
 
+            # ── 🌟 ROUTE 2: GROQ FALLBACK CORE ───────────────────────────────
             if not raw_json_dict and groq_client:
                 try:
                     print(f"[{file.filename}] Route 2: Initiating automatic hot failover to Groq/Llama cluster...")
@@ -249,6 +267,7 @@ async def rank_candidates_pipeline(
                 except Exception as groq_err:
                     print(f"⚠️ [{file.filename}] ROUTE 2 FAILURE: Groq track failed: {str(groq_err)}")
 
+            # ── 🌟 ROUTE 3: LOCAL OFFLINE BACKUP TRACK ──────────────────────
             if not raw_json_dict:
                 print(f"🚨 [{file.filename}] CLUSTER DROPOUT: Both Cloud LLM lines down. Initializing Local NumPy ML Track...")
                 raw_target_role = "Frontend Developer Intern" if "front" in cleaned_text.lower() else "Machine Learning Intern"
@@ -299,6 +318,7 @@ async def rank_candidates_pipeline(
                         raw_json_dict = val
                         break
 
+            # Establish safe fallbacks from Deep Learning parser entity sets
             ui_safe_skills = {
                 "programming_languages": dl_entities.get("languages", []) or dl_entities.get("skills", [])[:4],
                 "frameworks_libraries": dl_entities.get("frameworks", []),
@@ -310,6 +330,7 @@ async def rank_candidates_pipeline(
                 "apis_protocols": dl_entities.get("apis", [])
             }
 
+            # Map the parsed object variant keys directly over to frontend safe properties
             if "skills_details" in raw_json_dict and isinstance(raw_json_dict["skills_details"], dict):
                 rb = raw_json_dict["skills_details"]
                 ui_safe_skills["programming_languages"] = rb.get("programming_languages") or rb.get("programming-languages") or ui_safe_skills["programming_languages"]
@@ -321,9 +342,12 @@ async def rank_candidates_pipeline(
                 ui_safe_skills["domains_core_concepts"] = rb.get("domains_core_concepts") or rb.get("domains_and_core_concepts") or ui_safe_skills["domains_core_concepts"]
                 ui_safe_skills["apis_protocols"] = rb.get("apis_protocols") or rb.get("apis_and_protocols") or ui_safe_skills["apis_protocols"]
 
-            raw_json_dict.pop("skills_details", None)
+            # Validate structural correctness, then extract standard fields
             validated_payload = ATSAnalysisPayload.model_validate(raw_json_dict)
             ats_payload = validated_payload.model_dump()
+            
+            # Pop nested tracking field safely out before standard dictionary manipulation
+            ats_payload.pop("skills_details", None)
 
             ats_comp = ats_payload.get("ats_compatibility", 50)
             impact = ats_payload.get("impact_score", 50)
