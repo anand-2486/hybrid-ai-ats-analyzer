@@ -1,46 +1,87 @@
-ai-ats-intelligence-platform/
+hybrid-ai-ats-analyzer/
 │
-├── backend/                        # 🐍 Python FastAPI Core
-│   ├── main.py                     # API Routing Gateway
-│   ├── requirements.txt            # Operational Package Manifest
-│   ├── .env                        # Secured Secret Tokens (API Keys)
-│   ├── .gitignore                  # Prevents cache & environmental leaks
-│   │
-│   ├── api/                        # Route Handlers
-│   │   └── endpoints.py
-│   │
-│   ├── core/                       # Shared System Settings
-│   │   └── config.py
-│   │
-│   ├── chains/                     # 🤖 Generative AI Layer (LangChain)
-│   │   ├── ats_chain.py            # Structured 6-Tier Matrix Extraction
-│   │   └── skill_chain.py          # Structured 8-Part Categorization Matrix
-│   │
-│   ├── models/                     # 📉 Classic Machine Learning Layer (From Scratch)
-│   │   ├── tfidf_vectorizer.py     # Custom Frequency Weight Engine
-│   │   └── similarity_matrix.py    # Custom Pure-Math Cosine Comparator
-│   │
-│   ├── deep_learning/              # 🧠 Deep Learning Layer (PyTorch/TensorFlow)
-│   │   ├── weights/                # Stored Model Checkpoints (.pth / .h5)
-│   │   ├── bi_lstm_ner.py          # Custom Named Entity Recognition Architecture
-│   │   └── tokenizer.py            # Text-to-Tensor Serialization Pipeline
-│   │
-│   └── services/                   # Core Utility Pipelines
-│       ├── pdf_parser.py           # In-Memory Byte Stream File Extractor
-│       └── text_cleaner.py         # Regex Token Sanitizer
+├── backend/                                  # 🐍 FastAPI + AI Backend Core
 │
-└── frontend/                       # ⚛️ React UI (Vite + Tailwind CSS)
-    ├── package.json
-    ├── index.html
-    └── src/
-        ├── App.jsx                 # Application View Controller
-        ├── components/             # High-Impact Presentation Layer
-        │   ├── FileUpload.jsx      # Drag-and-Drop Ingestion Target
-        │   ├── Dashboard.jsx       # Tab Navigation Framework
-        │   ├── RadarChart.jsx      # Interactive Recharts Metric Grid
-        │   ├── SkillsMatrix.jsx    # Dual-Column Expander Node Tree
-        │   └── FocusPlan.jsx       # Priority Action Alignment Checklist
-        └── utils/
-            └── api.js              # Fetch Stream Interface to Backend Port 8000
-
-
+│   ├── main.py                               # Main FastAPI entry point & routing gateway
+│   ├── requirements.txt                      # Python dependency manifest
+│   ├── .env                                  # API keys & secret environment variables
+│   ├── .gitignore                            # Ignore cache, env, db, checkpoints
+│   ├── init_db.py                            # SQLite database initialization script
+│   ├── ats_database.db                       # Persistent SQLite storage
+│
+│   ├── chains/                               # LangChain orchestration pipelines
+│   │
+│   │   ├── ats_chain.py                      # Main ATS scoring & analysis chain
+│   │   ├── enhancer_chain.py                 # Resume bullet enhancement chain
+│   │   ├── predictor_chain.py                # Job role prediction workflow
+│   │   ├── roadmap_chain.py                  # Smart roadmap generation chain
+│   │   └── skill_chain.py                    # Skill extraction & matching chain
+│
+│   ├── models/                               # 📉 Traditional ML + similarity engines
+│   │
+│   │   ├── tfidf_matcher.py                  # TF-IDF cosine similarity matcher
+│   │   ├── semantic_matcher.py               # Embedding-based semantic similarity engine
+│   │   └── ats_ml_weights.json               # Offline ML scoring weights/checkpoints
+│
+│   ├── deep_learning/                        # 🧠 Deep Learning Layer
+│   │
+│   │   ├── bi_lstm_ner.py                    # BiLSTM Named Entity Recognition model
+│   │   ├── tokenizer.py                      # Tokenization & vocabulary processing
+│   │   ├── train_ner.py                      # NER training pipeline
+│   │   │
+│   │   └── weights/                          # Trained DL model checkpoints
+│   │       ├── ner_weights.pth
+│   │       └── tokenizer.pkl
+│
+│   ├── prompts/                              # Prompt engineering templates
+│   │
+│   │   ├── ats_prompt.md                     # ATS review system prompt
+│   │   ├── skills_prompt.md                  # Skill analysis prompt
+│   │   └── prompts_reader.py                 # Prompt loader utility
+│
+│   ├── services/                             # Utility processing services
+│   │
+│   │   ├── dl_service.py                     # Deep learning inference service
+│   │   ├── dl_inference.py                   # NER prediction runtime pipeline
+│   │   └── pdf_parser.py                     # PDF extraction & text sanitization
+│
+│   └── utils/                                # Shared helper utilities
+│       │
+│       ├── db.py                             # SQLite database connection manager
+│       ├── helpers.py                        # Common utility functions
+│       ├── constants.py                      # Global constants & configurations
+│       └── validators.py                     # Request validation helpers
+│
+└── frontend/                                 # ⚛️ Next.js Frontend Layer
+│
+├── package.json
+├── tailwind.config.js                        # Tailwind configuration
+├── next.config.js                            # Next.js runtime configuration
+├── .env.local                                # Frontend environment variables
+│
+└── src/
+    │
+    └── app/
+        │
+        ├── layout.js                         # Global application shell
+        ├── page.js                           # Main landing/dashboard page
+        ├── globals.css                       # Tailwind global styles
+        │
+        ├── api/
+        │   └── utils/
+        │       └── api.js                    # Axios/fetch centralized API manager
+        │
+        └── components/                       # Reusable UI components
+            │
+            ├── FileUpload.jsx                # Resume upload handler
+            ├── RecruiterDashboard.jsx        # Main recruiter analytics dashboard
+            ├── SkillsMatrix.jsx              # Skill matrix visualization
+            ├── RadarChart.jsx                # ATS radar score visualization
+            ├── PercentileChart.jsx           # Candidate percentile analytics
+            ├── ResumeHeatmap.jsx             # Resume skill heatmap renderer
+            ├── BulletEnhancer.jsx            # Resume bullet enhancement tool
+            ├── SmartRoadmap.jsx              # Career roadmap generator UI
+            ├── RolePredictor.jsx             # AI role prediction component
+            ├── LoadingSpinner.jsx            # Reusable loading animation
+            ├── Navbar.jsx                    # Navigation bar
+            └── Footer.jsx                    # Footer component
