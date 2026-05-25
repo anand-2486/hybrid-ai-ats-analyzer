@@ -24,4 +24,4 @@ python-docx
 
 scikit-learn
 huggingface-hub
-genai
+google-genai==0.1.1
