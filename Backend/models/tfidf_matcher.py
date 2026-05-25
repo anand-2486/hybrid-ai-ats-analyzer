@@ -16,11 +16,9 @@ def calculate_tf(tokens: list[str]) -> dict[str, float]:
     if total_tokens == 0:
         return tf_dict
         
-    # Count occurrences
     for token in tokens:
         tf_dict[token] = tf_dict.get(token, 0) + 1
         
-    # Standardize by total token count
     for token in tf_dict:
         tf_dict[token] = tf_dict[token] / total_tokens
         
@@ -30,16 +28,12 @@ def calculate_tfidf_vectors(resume_text: str, jd_text: str) -> tuple[dict[str, f
     """Generates manual TF-IDF vectors for both the resume and the job description."""
     resume_tokens = tokenize(resume_text)
     jd_tokens = tokenize(jd_text)
-    
-    # 1. Calculate individual Term Frequencies
+
     resume_tf = calculate_tf(resume_tokens)
     jd_tf = calculate_tf(jd_tokens)
-    
-    # 2. Build the unique global vocabulary across both documents
+
     vocabulary = set(resume_tf.keys()).union(set(jd_tf.keys()))
     
-    # 3. Calculate Inverse Document Frequency (IDF) manually
-    # Total documents (N) = 2
     idf_dict = {}
     for word in vocabulary:
         # Count how many documents contain the word
@@ -68,8 +62,7 @@ def calculate_cosine_similarity(resume_text: str, jd_text: str) -> int:
     dot_product = 0.0
     magnitude_a = 0.0
     magnitude_b = 0.0
-    
-    # Compute dot product and magnitude vector lengths manually
+
     for word in vec_a:
         val_a = vec_a[word]
         val_b = vec_b.get(word, 0.0)
@@ -85,8 +78,7 @@ def calculate_cosine_similarity(resume_text: str, jd_text: str) -> int:
         return 0
         
     similarity = dot_product / (magnitude_a * magnitude_b)
-    
-    # Convert decimal (0.0 - 1.0) to an integer percentage out of 100
+
     return int(round(similarity * 100))
 
 if __name__ == "__main__":

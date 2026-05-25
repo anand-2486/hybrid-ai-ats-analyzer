@@ -3,7 +3,6 @@ from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
 from prompts.prompts_reader import load_skills_prompt
 
-# ── Gap Analysis Model ────────────────────────────────────────────────────────
 
 class JDFocusArea(BaseModel):
     priority_level: str = Field(
@@ -23,7 +22,6 @@ class JDFocusArea(BaseModel):
         description="Explicit, concrete engineering instruction on exactly what the candidate should add, adjust, or learn to excel in this specific job description criteria."
     )
 
-# ── Base Skill ────────────────────────────────────────────────────────────────
 
 class BaseSkill(BaseModel):
     name: str = Field(
@@ -43,8 +41,6 @@ class BaseSkill(BaseModel):
         description="Resume evidence supporting this extraction"
     )
 
-
-# ── Skill Variants ────────────────────────────────────────────────────────────
 
 class ProgrammingLanguage(BaseSkill):
     pass
@@ -87,7 +83,6 @@ class APIOrProtocol(BaseSkill):
     pass
 
 
-# ── Skills Container ──────────────────────────────────────────────────────────
 
 class Skills(BaseModel):
     programming_languages: list[ProgrammingLanguage] = Field(default_factory=list)
@@ -99,8 +94,6 @@ class Skills(BaseModel):
     domains_and_concepts: list[DomainOrConcept] = Field(default_factory=list)
     apis_and_protocols: list[APIOrProtocol] = Field(default_factory=list)
 
-
-# ── Root Response Model ───────────────────────────────────────────────────────
 
 class SkillsResponse(BaseModel):
     candidate_name: Optional[str] = Field(
@@ -128,26 +121,20 @@ class SkillsResponse(BaseModel):
     )
 
 
-# ── Chain Builder ────────────────────────────────────────────────────────────
-
 def extract_skills_from_resume_chain(cleaned_text: str, job_description: str, llm) -> "SkillsResponse":
     """
     Assembles the multi-tier technical skill taxonomy extraction chain, reads the local
     markdown prompt, and requests structured evaluation from Gemini.
     """
-    # 1. Load your raw instruction markdown string template dynamically
     system_prompt_template = load_skills_prompt()
-    
-    # 2. Arrange context components into messages
+
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt_template),
         ("human", "Analyze this profile text and map it against the taxonomy metrics.\n\nJob Specs:\n{job_description}\n\nCandidate Resume:\n{resume_text}")
     ])
     
-    # 3. Force the model to output data corresponding with the unified root contract schema
     chain = prompt | llm.with_structured_output(SkillsResponse)
     
-    # 4. Invoke the run execution engine with structural formatting constraints
     return chain.invoke({
         "resume_text": cleaned_text, 
         "job_description": job_description

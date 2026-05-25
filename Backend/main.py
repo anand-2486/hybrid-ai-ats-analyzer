@@ -7,11 +7,9 @@ from pydantic import BaseModel, Field
 import numpy as np
 import sqlite3
 
-# Bypass the OpenMP runtime conflict error automatically
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# ── 🌟 OFFLINE SYSTEM CONFIGURATION MATRIX ───────────────────────────────────
-# Force the transformers ecosystem to run exclusively from local disk caches
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["HF_HUB_OFFLINE"] = "1"
 
@@ -21,7 +19,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# HUGGING FACE AUTHENTICATION TOKEN INJECTION
 if os.getenv("HF_TOKEN"):
     os.environ["HF_TOKEN"] = os.getenv("HF_TOKEN")
 else:
@@ -34,7 +31,6 @@ if not os.getenv("GOOGLE_API_KEY"):
 if not os.getenv("GROQ_API_KEY"):
     print("WARNING: GROQ_API_KEY missing from configuration environment.")
 
-# Core Multi-Model Layer Imports
 from groq import Groq
 from google import genai
 from google.genai import types
@@ -56,7 +52,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize cloud execution handlers safely using fixed key constants
 groq_client = None
 gemini_client = None
 
@@ -65,8 +60,6 @@ if os.getenv("GROQ_API_KEY"):
 if os.getenv("GOOGLE_API_KEY"):
     gemini_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
-
-# ── PYDANTIC SCHEMA BLOCK ────────────────────────────────────────────────────
 class ATSAnalysisPayload(BaseModel):
     summary: str = "No summary generated."
     strengths: List[str] = Field(default_factory=list)
@@ -88,7 +81,6 @@ def read_root():
     return {"message": "Enterprise Recruiter Ultra-Resilient Persistent Core is online."}
 
 
-# ── 🌟 NEW ROUTE: FETCH HISTORICAL DATA ─────────────────────────────────────
 @app.get("/api/recruiter/history")
 def get_historical_leaderboard():
     """Retrieves all previously processed candidates grouped by their job context."""
@@ -130,7 +122,6 @@ def get_historical_leaderboard():
         raise HTTPException(status_code=500, detail=f"Database retrieval crash: {str(e)}")
 
 
-# ── MAIN PIPELINE: PARSE, ANALYZE, AND SAVE ──────────────────────────────────
 @app.post("/api/recruiter/rank-candidates")
 async def rank_candidates_pipeline(
     job_description: str = Form(...),
@@ -139,7 +130,6 @@ async def rank_candidates_pipeline(
     if not files:
         raise HTTPException(status_code=400, detail="Batch file compilation wrapper array cannot be empty.")
 
-    # 🚀 DATABASE OPERATION: Open connection pool and insert a parent job instance record
     job_id = str(uuid.uuid4())[:8]
     try:
         db_conn = sqlite3.connect("ats_database.db")
@@ -156,7 +146,6 @@ async def rank_candidates_pipeline(
             continue
 
         try:
-            # Layer 1: Read and process individual file strings
             file_bytes = await file.read()
             raw_text = extract_text(file_bytes, file.filename)
             cleaned_text = clean_resume_text(raw_text)
@@ -164,16 +153,13 @@ async def rank_candidates_pipeline(
             if not cleaned_text.strip():
                 continue
 
-            # Layer 2: Compute classic text overlap matrices and semantic vector matching
             keyword_score = calculate_cosine_similarity(cleaned_text, job_description)
             semantic_score = calculate_semantic_similarity(cleaned_text, job_description)
-            
-            # Layer 3: Deep Learning (PyTorch Entity Token Tracking)
+
             dl_entities = extract_dl_entities(cleaned_text)
             if not isinstance(dl_entities, dict):
                 dl_entities = {}
-            
-            # Layer 4: GenAI Structured Profile Scoring Analysis
+
             system_prompt = (
                 "You are an expert enterprise recruitment intelligence parsing engine designed to provide deep, exhaustive candidate evaluations.\n"
                 "Cross-examine the candidate resume text against the organizational job description requirements thoroughly.\n\n"
@@ -216,7 +202,6 @@ async def rank_candidates_pipeline(
             raw_json_dict = None
             active_provider = "UNKNOWN"
 
-            # ── 🌟 STAGE A: PRIMARY TRACK (GEMINI VIA GOOGLE_API_KEY) ────────
             if gemini_client:
                 try:
                     print(f"[{file.filename}] Route 1: Requesting Gemini-2.5-Flash framework...")
@@ -234,7 +219,6 @@ async def rank_candidates_pipeline(
                 except Exception as gemini_err:
                     print(f"⚠️ [{file.filename}] ROUTE 1 FAILURE: Gemini failed: {str(gemini_err)}")
 
-            # ── 🌟 STAGE B: HOT FAILOVER TRACK (GROQ CORE INFRASTRUCTURE) ────
             if not raw_json_dict and groq_client:
                 try:
                     print(f"[{file.filename}] Route 2: Initiating automatic hot failover to Groq/Llama cluster...")
@@ -265,7 +249,6 @@ async def rank_candidates_pipeline(
                 except Exception as groq_err:
                     print(f"⚠️ [{file.filename}] ROUTE 2 FAILURE: Groq track failed: {str(groq_err)}")
 
-            # ── 🌟 STAGE C: EMERGENCY OFFLINE TRACK (LOCAL NUMPY ML LAYER) ───
             if not raw_json_dict:
                 print(f"🚨 [{file.filename}] CLUSTER DROPOUT: Both Cloud LLM lines down. Initializing Local NumPy ML Track...")
                 raw_target_role = "Frontend Developer Intern" if "front" in cleaned_text.lower() else "Machine Learning Intern"
@@ -341,8 +324,7 @@ async def rank_candidates_pipeline(
             raw_json_dict.pop("skills_details", None)
             validated_payload = ATSAnalysisPayload.model_validate(raw_json_dict)
             ats_payload = validated_payload.model_dump()
-            
-            # Extract score buckets
+
             ats_comp = ats_payload.get("ats_compatibility", 50)
             impact = ats_payload.get("impact_score", 50)
             readability = ats_payload.get("readability", 50)
@@ -375,7 +357,6 @@ async def rank_candidates_pipeline(
                 "project_quality": proj_quality
             }
 
-            # ── 🌟 DATABASE OPERATION: PERSIST INDIVIDUAL CANDIDATE RECORD ──
             cand_id = str(uuid.uuid4())[:8]
             db_cursor.execute("""
                 INSERT INTO candidates (
@@ -414,7 +395,6 @@ async def rank_candidates_pipeline(
             print(f"Error processing profile {file.filename}: {str(e)}")
             continue
 
-    # Commit operations and clear connection lines cleanly
     db_conn.commit()
     db_conn.close()
 

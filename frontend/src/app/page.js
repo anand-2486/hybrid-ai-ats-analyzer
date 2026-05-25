@@ -62,7 +62,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#070A14] text-slate-200 antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
       
-      {/* ── 🌟 SECTION 0: UNIFIED BRAND NAVIGATION HEADER ── */}
       <header className="border-b border-[#1E2638]/60 bg-[#070A14]/60 backdrop-blur-xl sticky top-0 z-50 px-6 py-4 shadow-xl shadow-black/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
@@ -91,7 +90,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Container Workspace */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center">
         {errorMessage && (
           <div className="w-full max-w-4xl mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm font-medium">
@@ -150,7 +148,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Streamlined Success Alert Toast */}
               {selectedFiles.length > 0 && (
                 <div className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3 flex items-center justify-between box-border animate-in fade-in slide-in-from-bottom-2 duration-200">
                   <div className="flex items-center space-x-2.5 min-w-0">
@@ -192,7 +189,6 @@ export default function Home() {
             </form>
           </div>
         ) : (
-          /* Recruiter Dashboard expands out smoothly to full screen grid when results populate */
           <div className="w-full">
             <RecruiterDashboard candidatesList={batchResults} />
           </div>

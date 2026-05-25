@@ -3,8 +3,7 @@ import os
 
 def initialize_database():
     db_path = "ats_database.db"
-    
-    # Establish a connection to the local SQLite database file
+
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     

@@ -15,12 +15,11 @@ def extract_dl_entities(cleaned_text: str) -> list[dict]:
         TAGSET_SIZE = 3
         model = BiLSTMNER(
             vocab_size=len(tokenizer.word2idx),
-            embedding_dim=16,  # Matches training dims
-            hidden_dim=32,   # Matches training dims
+            embedding_dim=16, 
+            hidden_dim=32,  
             tagset_size=TAGSET_SIZE
         )
-        
-        # 🌟 LOAD YOUR TRAINED WEIGHTS NATIVELY
+
         weights_path = "deep_learning/weights/bi_lstm_ner.pth"
         if os.path.exists(weights_path):
             # Map state dict tensors straight into the architecture graph
