@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import RecruiterDashboard from "@/app/components/RecruiterDashboard";
-import { BrainCircuit, UploadCloud, FileText, CheckCircle2, Loader2, CheckCircle } from "lucide-react";
+import { Sparkles, UploadCloud, FileText, CheckCircle2, Loader2, CheckCircle } from "lucide-react";
 
 export default function Home() {
   const [jobDescription, setJobDescription] = useState("");
@@ -60,20 +60,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-200 antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
+    <div className="min-h-screen bg-[#070A14] text-slate-200 antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
       
-      {/* Header Framework */}
-      <header className="border-b border-[#1E2638] bg-[#0B0F17]/60 backdrop-blur-xl sticky top-0 z-50 px-6 py-4 shadow-xl shadow-black/10">
+      {/* ── 🌟 SECTION 0: UNIFIED BRAND NAVIGATION HEADER ── */}
+      <header className="border-b border-[#1E2638]/60 bg-[#070A14]/60 backdrop-blur-xl sticky top-0 z-50 px-6 py-4 shadow-xl shadow-black/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
-              <BrainCircuit className="w-6 h-6" />
+          <div className="flex items-center space-x-3.5">
+            <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center justify-center text-emerald-400 font-black shadow-md shadow-emerald-950/20">
+              <Sparkles className="w-4 h-4 animate-pulse" />
             </div>
             <div>
-              <h1 className="font-bold text-lg tracking-tight text-white">
-                AI-ATS Recruiter Intelligence Suite
+              <h1 className="text-lg font-black tracking-tight text-white uppercase">
+                hybrid-ai-ats-analyzer
               </h1>
-              <p className="text-[10px] text-emerald-500/80 font-bold uppercase tracking-wider">
+              <p className="text-[9px] font-mono font-black text-emerald-400 uppercase tracking-widest">
                 Enterprise Batch Processing Engine
               </p>
             </div>
@@ -81,8 +81,9 @@ export default function Home() {
           
           {batchResults && (
             <button
+              type="button"
               onClick={() => { setBatchResults(null); setSelectedFiles([]); }}
-              className="px-4 py-2 text-xs font-bold tracking-wide uppercase bg-slate-900 border border-[#1E2638] hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg transition-all cursor-pointer"
+              className="text-[10px] font-mono font-bold tracking-wider uppercase bg-[#111622]/60 border border-[#1E2638] px-3.5 py-1.5 rounded-xl text-slate-400 hover:text-white hover:border-emerald-500/50 transition-all shadow-inner cursor-pointer"
             >
               Reset Ingestion Pipeline
             </button>
@@ -99,10 +100,9 @@ export default function Home() {
         )}
 
         {!batchResults ? (
-          /* 🌟 FIXED: Max width restricted to 4xl for a tighter, high-end dashboard structure */
           <div className="w-full max-w-4xl space-y-6 animate-in fade-in duration-300">
             <div className="text-center space-y-1.5">
-              <h2 className="text-2xl font-black tracking-tight text-white">
+              <h2 className="text-2xl font-black tracking-tight text-white uppercase">
                 Talent Acquisition Leaderboard
               </h2>
               <p className="text-xs text-slate-400 max-w-xl mx-auto font-normal">
@@ -150,7 +150,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 🌟 FIXED: Streamlined Success Alert Toast */}
+              {/* Streamlined Success Alert Toast */}
               {selectedFiles.length > 0 && (
                 <div className="w-full bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3 flex items-center justify-between box-border animate-in fade-in slide-in-from-bottom-2 duration-200">
                   <div className="flex items-center space-x-2.5 min-w-0">
@@ -192,7 +192,7 @@ export default function Home() {
             </form>
           </div>
         ) : (
-          /* 🌟 Recruiter Dashboard expands out smoothly to full screen grid when results populate */
+          /* Recruiter Dashboard expands out smoothly to full screen grid when results populate */
           <div className="w-full">
             <RecruiterDashboard candidatesList={batchResults} />
           </div>
